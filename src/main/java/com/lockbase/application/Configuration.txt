@@ -1,0 +1,40 @@
+Spring Beans:
+There are a couple of ways to define a bean, works similar to a java object but a bean is used by
+spring application to make sure it works under dependency injection (IOC - Inversion of Control).
+
+##1. Basic Setup:
+
+-> In this, all the beans are defined in a separate class (usually called AppConfig with a
+@Configuration) which lets the spring application know that here all the beans would be defined.
+(we can define multiple appconfig classess too ig but didn't tried).
+
+-> now to define a bean inside this AppConfig, create a public function and lets suppose the class
+for which we need to define the bean is named Trial, so the AppConfig would look something like
+this:
+    @Configuration
+    public class AppConfig {
+
+        @Bean
+        public Trial trial(){
+            return new Trial();
+        }
+    }
+
+-> Now whenever in the application we need to get a bean, or use class trial, we won't create an
+object of that class normally like Trial obj = new Trial(); No! We're gonna work with beans which
+means have to inject it. In this case either one can use context.getBean method, or use a
+constructor like this:
+    public class_where_we_use_bean(Trial trial){
+            this.trial = trial;
+        }
+    AND also define the object in the class like ** private final Trial trial; **
+
+and thats it, no annotation to be used cause spring will automatically check for this name when it
+starts, and we defined the bean with the name so it will inject automatically. And then one can use
+the trial object.
+
+** What if we make 2 beans of the same class Trial in the AppConfig, here is where @Qualifier and
+@Bean("name") comes into play. @Qualifier is used to define a unique ID, when using the constructor
+just define @qualifier there as well as when you define bean, on the other hand if you use name
+property in the @bean, you can call that particular bean with the name using the function context
+.getbean(name, classtype).
