@@ -7,7 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class LockbaseServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(LockbaseServiceApplication.class, args);
-	}
+		var context = SpringApplication.run(LockbaseServiceApplication.class, args);
 
+		EnvironmentUtil env_util = context.getBean(EnvironmentUtil.class);
+		env_util.getAppStartInfo();
+	}
 }
