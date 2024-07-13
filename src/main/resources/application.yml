@@ -1,0 +1,8 @@
+spring:
+    application:
+        name: Lockbase_service
+    datasource:
+        url: jdbc:postgresql://localhost:5432/Lockbase
+        username: postgres
+        password: admin
+        driver-class-name: org.postgresql.Driver

@@ -18,7 +18,7 @@ public class EnvironmentUtil {
     }
 
     public void getAppStartInfo(){
-        // Can read properties defined in the application.properties file, just use the prop key
+        // Can read properties defined in the application.yml file, just use the prop key
         System.out.println("\nApplication Name: " + env.getProperty("spring.application.name"));
 
         System.out.println("Java Version: " + env.getProperty("java.version"));
