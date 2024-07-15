@@ -1,15 +1,37 @@
 package com.lockbase.model;
 
-import java.sql.Date;
+import jakarta.persistence.*;
 
+import java.sql.Timestamp;
+
+@Entity
+@Table(name = "login_user")
 public class User {
 
+    public User() {
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "pk_user_id")
     private Integer id;
+
+    @Column(name = "username"/*, length = 15, unique = true*/)
     private String username;
+
+    @Column(name = "email"/*, unique = true*/)
     private String email;
+
+    @Column(name = "password")
     private String password;
-    private Date createDate;
-    private Date updateDate;
+
+    @Column(name = "create_date"/*, updatable = false*/)
+    private Timestamp createDate;
+
+    @Column(name = "update_date")
+    private Timestamp updateDate;
+
+    @Column(name = "is_deleted")
     private boolean isDeleted;
 
     public Integer getId() {
@@ -44,12 +66,20 @@ public class User {
         this.password = password;
     }
 
-    public Date getCreateDate() {
+    public Timestamp getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(Timestamp createDate) {
         this.createDate = createDate;
+    }
+
+    public Timestamp getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(Timestamp updateDate) {
+        this.updateDate = updateDate;
     }
 
     public boolean isDeleted() {
@@ -58,13 +88,5 @@ public class User {
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
-    }
-
-    public Date getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
     }
 }
