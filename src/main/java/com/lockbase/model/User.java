@@ -89,4 +89,17 @@ public class User {
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", createDate=" + createDate +
+                ", updateDate=" + updateDate +
+                ", isDeleted=" + isDeleted +
+                '}';
+    }
 }
