@@ -25,6 +25,12 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "country_code")
+    private String country_code;
+
+    @Column(name = "ph_number")
+    private String phone_number;
+
     @Column(name = "create_date"/*, updatable = false*/)
     private Timestamp createDate;
 
@@ -64,6 +70,22 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getCountry_code() {
+        return country_code;
+    }
+
+    public void setCountry_code(String country_code) {
+        this.country_code = country_code;
+    }
+
+    public String getPhone_number() {
+        return phone_number;
+    }
+
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
     }
 
     public Timestamp getCreateDate() {

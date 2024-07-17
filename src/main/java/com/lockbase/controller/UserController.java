@@ -1,5 +1,6 @@
 package com.lockbase.controller;
 
+import com.lockbase.dto.UserDTO;
 import com.lockbase.model.User;
 import com.lockbase.repository.UserRepository;
 import com.lockbase.service.UserService;
@@ -21,7 +22,7 @@ public class UserController {
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping(value = "/create_user", produces = MediaType.APPLICATION_JSON_VALUE)
-    public User createUser(@RequestBody User user){
+    public User createUser(@RequestBody UserDTO user){
         return userService.createUser(user);
     }
 }
