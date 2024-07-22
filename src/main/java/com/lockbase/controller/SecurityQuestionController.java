@@ -1,5 +1,6 @@
 package com.lockbase.controller;
 
+import com.lockbase.model.MapUserSeQue;
 import com.lockbase.model.SecurityQuestion;
 import com.lockbase.service.SecurityQuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,5 +22,12 @@ public class SecurityQuestionController {
     @GetMapping(value = "/get_questions", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<SecurityQuestion> findAllQuestions(){
         return securityQuestionService.findAllQuestions();
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @GetMapping(value = "/get_mapping", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<MapUserSeQue> getAll(){
+        return securityQuestionService.getAll();
     }
 }

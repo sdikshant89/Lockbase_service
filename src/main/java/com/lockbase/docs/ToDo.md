@@ -4,3 +4,5 @@ that the application is supposed to implement.
 
 - [ ] 'Security questions' table in db and 'map_user_secque'
 - [ ] implement logger
+- [ ] implement phone number and country code validation in frontend
+- [ ] implement encryption for saving answers to security questions 
