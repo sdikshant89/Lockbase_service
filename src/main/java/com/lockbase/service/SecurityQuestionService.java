@@ -1,22 +1,30 @@
 package com.lockbase.service;
 
+import com.lockbase.dto.SecAnsDTO;
+import com.lockbase.dto.UserQueDTO;
 import com.lockbase.model.MapUserSeQue;
 import com.lockbase.model.SecurityQuestion;
+import com.lockbase.model.User;
 import com.lockbase.repository.MapUserSeQueRepository;
 import com.lockbase.repository.SecurityQuestionRepository;
+import com.lockbase.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SecurityQuestionService {
 
     @Autowired
-    private SecurityQuestionRepository securityQuestionRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private MapUserSeQueRepository mapUserSeQueRepository;
+
+    @Autowired
+    private SecurityQuestionRepository securityQuestionRepository;
 
     public List<SecurityQuestion> findAllQuestions(){
         List<SecurityQuestion> questions = null;
@@ -39,11 +47,21 @@ public class SecurityQuestionService {
         return queMap;
     }
 
-    public List<MapUserSeQue> findUserSpecific(){
-        // This method would get users email and user ID from request, and it will send the
-        // questions and answers of that particular user in order to complete 2FA. (This step
-        // could be done before sending email for 2FA)
-        return null;
+    //(This step could be done before sending email for 2FA)
+    //Change output of the code
+    public List<SecAnsDTO> getUserSecQue(UserQueDTO userQueDTO){
+        User activeUser = null;
+        List<SecAnsDTO> userSecQue = null;
+        try{
+            activeUser = userRepository.findUserByEmailAndId(userQueDTO.getEmail(),
+                    userQueDTO.getUserId());
+            if(Objects.nonNull(activeUser)){
+                userSecQue = mapUserSeQueRepository.findAnsByUserId(activeUser.getId());
+            }
+        } catch(Exception e){
+            System.out.println(e);
+        }
+        return userSecQue;
     }
 
     public Boolean saveInfo(){
