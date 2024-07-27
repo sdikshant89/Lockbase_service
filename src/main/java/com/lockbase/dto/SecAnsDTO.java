@@ -1,33 +1,31 @@
 package com.lockbase.dto;
 
-import com.lockbase.model.SecurityQuestion;
-
 public class SecAnsDTO {
 
-    public SecAnsDTO(Integer id, String question, String answer) {
-        this.id = id;
-        Question = question;
+    public SecAnsDTO(Integer queId, String question, String answer) {
+        this.queId = queId;
+        this.question = question;
         this.answer = answer;
     }
 
-    private Integer id;
-    private String Question;
+    private Integer queId;
+    private String question;
     private String answer;
 
-    public Integer getId() {
-        return id;
+    public Integer getQueId() {
+        return queId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setQueId(Integer queId) {
+        this.queId = queId;
     }
 
     public String getQuestion() {
-        return Question;
+        return question;
     }
 
     public void setQuestion(String question) {
-        Question = question;
+        this.question = question;
     }
 
     public String getAnswer() {

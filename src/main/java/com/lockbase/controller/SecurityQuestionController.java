@@ -1,5 +1,6 @@
 package com.lockbase.controller;
 
+import com.lockbase.dto.MapSecQueDTO;
 import com.lockbase.dto.SecAnsDTO;
 import com.lockbase.dto.UserQueDTO;
 import com.lockbase.model.MapUserSeQue;
@@ -38,5 +39,13 @@ public class SecurityQuestionController {
     @PostMapping(value = "/get_user_sec_que", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<SecAnsDTO> getUserSecQue(@RequestBody UserQueDTO userQueDTO){
         return securityQuestionService.getUserSecQue(userQueDTO);
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @PostMapping(value = "/save_user_sec_que", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<SecAnsDTO> saveUserSecQue(@RequestBody MapSecQueDTO mapSecQueDTO){
+        //return securityQuestionService.getUserSecQue(mapSecQueDTO);
+        return null;
     }
 }
