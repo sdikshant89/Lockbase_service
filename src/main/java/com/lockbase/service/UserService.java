@@ -3,6 +3,7 @@ package com.lockbase.service;
 import com.lockbase.dto.UserDTO;
 import com.lockbase.model.User;
 import com.lockbase.repository.UserRepository;
+import com.lockbase.util.PasswordUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,15 +18,20 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordUtil passwordUtil;
+
     public User createUser(UserDTO userDTO){
         User new_user = new User();
         User exists = userRepository.findUserByEmail(userDTO.getEmail());
+
         if(Objects.isNull(exists)){
             try{
                 BeanUtils.copyProperties(userDTO, new_user);
 
                 Date date = new Date();
                 new_user.setCreateDate(new Timestamp(date.getTime()));
+                new_user.setPassword(passwordUtil.encodePass(userDTO.getPassword()));
 
                 return userRepository.save(new_user);
             }catch (Exception e){

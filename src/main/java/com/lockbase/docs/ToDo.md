@@ -7,3 +7,4 @@ that the application is supposed to implement.
 - [ ] implement phone number and country code validation in frontend
 - [ ] implement encryption for saving answers to security questions
 - [ ] Change user Entity name to loginUser, refactor and test code.
+- [ ] Implement forgot password too.
