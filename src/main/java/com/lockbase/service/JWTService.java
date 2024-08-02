@@ -1,5 +1,6 @@
 package com.lockbase.service;
 
+import com.lockbase.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -22,27 +23,24 @@ public class JWTService {
     }
 
     // Generates token using claims and secret key
-    public String generateToken(Map<String, Object> claims, UserDetails userDetails){
+    public String generateToken(Map<String, Object> claims, User user){
         return Jwts
                 .builder()
                 .claims(claims)
-                .subject(userDetails.getUsername())
+                .subject(user.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + (1000 * 60 * 24 * 3)))
                 .signWith(getSignInKey())
                 .compact();
     }
 
-    // Extract claim from the request token
-    private Claims extractAllClaims(String token){
-        return Jwts.parser().verifyWith(getSignInKey()).build().parseSignedClaims(token).getPayload();
-    }
-
+    // Checks if the token is valid and returns claims if it is
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
+        final Claims claims = Jwts.parser().verifyWith(getSignInKey()).build().parseSignedClaims(token).getPayload();
         return claimsResolver.apply(claims);
     }
 
+    // Checks if the claim's subject have username and its not expired.
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractClaim(token, Claims::getSubject);
         return (username.equals(userDetails.getUsername())) && !(extractClaim(token, Claims::getExpiration).before(new Date()));
