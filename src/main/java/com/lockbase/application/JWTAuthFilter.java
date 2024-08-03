@@ -23,7 +23,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class JWTAuthFilter extends OncePerRequestFilter {
 
-    // Need not to autowire handled by the @RequiredArgsConstructor
+    /**
+     * Need not to autowire handled by the @RequiredArgsConstructor
+     */
     private final JWTService jwtService;
     private final UserDetailsService userDetailsService;
 
