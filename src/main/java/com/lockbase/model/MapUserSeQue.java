@@ -1,13 +1,18 @@
 package com.lockbase.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "map_user_seque")
 public class MapUserSeQue {
-
-    public MapUserSeQue() {
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +22,7 @@ public class MapUserSeQue {
     @ManyToOne
     @JoinColumn(name = "fk_user_id",
             referencedColumnName = "pk_user_id")
-    private User user;
+    private LoginUser user;
 
     @ManyToOne
     @JoinColumn(name = "fk_seque_id",
@@ -30,54 +35,11 @@ public class MapUserSeQue {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public SecurityQuestion getSecurityQuestion() {
-        return securityQuestion;
-    }
-
-    public void setSecurityQuestion(SecurityQuestion securityQuestion) {
-        this.securityQuestion = securityQuestion;
-    }
-
-    public String getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(String answer) {
-        this.answer = answer;
-    }
-
-    public boolean isDeleted() {
-        return isDeleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
-    }
-
-    @Override
-    public String toString() {
-        return "MapUserSeQue{" +
-                "id=" + id +
-                ", user=" + user +
-                ", securityQuestion=" + securityQuestion +
-                ", answer='" + answer + '\'' +
-                ", isDeleted=" + isDeleted +
-                '}';
-    }
+//    public boolean isDeleted() {
+//        return isDeleted;
+//    }
+//
+//    public void setDeleted(boolean deleted) {
+//        isDeleted = deleted;
+//    }
 }

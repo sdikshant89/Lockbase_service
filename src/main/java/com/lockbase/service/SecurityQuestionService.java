@@ -4,10 +4,10 @@ import com.lockbase.dto.SecAnsDTO;
 import com.lockbase.dto.UserQueDTO;
 import com.lockbase.model.MapUserSeQue;
 import com.lockbase.model.SecurityQuestion;
-import com.lockbase.model.User;
+import com.lockbase.model.LoginUser;
 import com.lockbase.repository.MapUserSeQueRepository;
 import com.lockbase.repository.SecurityQuestionRepository;
-import com.lockbase.repository.UserRepository;
+import com.lockbase.repository.LoginUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ import java.util.Objects;
 public class SecurityQuestionService {
 
     @Autowired
-    private UserRepository userRepository;
+    private LoginUserRepository userRepository;
 
     @Autowired
     private MapUserSeQueRepository mapUserSeQueRepository;
@@ -50,7 +50,7 @@ public class SecurityQuestionService {
     //(This step could be done before sending email for 2FA)
     //Change output of the code
     public List<SecAnsDTO> getUserSecQue(UserQueDTO userQueDTO){
-        User activeUser = null;
+        LoginUser activeUser = null;
         List<SecAnsDTO> userSecQue = null;
         try{
             activeUser = userRepository.findUserByEmailAndId(userQueDTO.getEmail(),

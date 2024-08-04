@@ -1,6 +1,6 @@
 package com.lockbase.application;
 
-import com.lockbase.model.User;
+import com.lockbase.model.LoginUser;
 import com.lockbase.service.JWTService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -45,7 +45,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         final String username = jwtService.extractClaim(token, Claims::getSubject);
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            User user = (User) this.userDetailsService.loadUserByUsername(username);
+            LoginUser user = (LoginUser) this.userDetailsService.loadUserByUsername(username);
 
             if(jwtService.isTokenValid(token, user)){
 

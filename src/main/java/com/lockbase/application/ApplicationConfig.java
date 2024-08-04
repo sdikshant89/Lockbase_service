@@ -1,6 +1,6 @@
 package com.lockbase.application;
 
-import com.lockbase.repository.UserRepository;
+import com.lockbase.repository.LoginUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.*;
@@ -24,7 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApplicationConfig {
 
     @Autowired
-    private UserRepository userRepository;
+    private LoginUserRepository userRepository;
 
     @Bean
     public EnvironmentUtil environmentUtil(){
@@ -34,7 +34,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService(){
         return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found while " +
+                .orElseThrow(() -> new UsernameNotFoundException("LoginUser not found while " +
                         "authentication"));
     }
 

@@ -1,6 +1,6 @@
 package com.lockbase.service;
 
-import com.lockbase.model.User;
+import com.lockbase.model.LoginUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -23,7 +23,7 @@ public class JWTService {
     }
 
     // Generates token using claims and secret key
-    public String generateToken(Map<String, Object> claims, User user){
+    public String generateToken(Map<String, Object> claims, LoginUser user){
         return Jwts
                 .builder()
                 .claims(claims)
