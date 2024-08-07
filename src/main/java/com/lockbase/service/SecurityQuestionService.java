@@ -11,13 +11,12 @@ import com.lockbase.repository.SecurityQuestionRepository;
 import com.lockbase.repository.LoginUserRepository;
 import com.lockbase.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +39,7 @@ public class SecurityQuestionService {
         try{
             questions = securityQuestionRepository.findAll();
         }catch(Exception e){
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
         return questions;
     }
@@ -55,14 +54,16 @@ public class SecurityQuestionService {
                 userSecQue = mapUserSeQueRepository.findAnsByUserId(activeUser.getId());
             }
         } catch(Exception e){
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
         return userSecQue;
     }
 
     @Transactional
-    public Boolean saveUserSecQue(MapSecQueDTO mapSecQueDTO){
+    public ResponseEntity<Map<String, Object>> saveUserSecQue(MapSecQueDTO mapSecQueDTO){
         List<MapUserSeQue> sec_que_ans = new ArrayList<>();
+        Boolean save = Boolean.FALSE;
+        Map<String, Object> response = new HashMap<>();
         try{
             Optional<LoginUser> user = userRepository.findById(mapSecQueDTO.getUserId());
 
@@ -79,14 +80,19 @@ public class SecurityQuestionService {
                     sec_que_ans.add(mapUserSeQue);
                 }
             }));
+            response.put("saved", save);
             if(sec_que_ans.size() == 3){
                 List<MapUserSeQue> result = mapUserSeQueRepository.saveAll(sec_que_ans);
-                return result.stream().filter(entity -> Objects.nonNull(entity.getId())).toList().size() == 3;
+                save =
+                        result.stream().filter(entity -> Objects.nonNull(entity.getId())).toList().size() == 3;
+                response.put("success", Boolean.TRUE);
+                return ResponseEntity.status(HttpStatus.OK).body(response);
             }
         }catch(Exception e){
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
-        return false;
+        response.put("success", Boolean.FALSE);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }
 

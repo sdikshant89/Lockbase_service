@@ -8,9 +8,11 @@ import com.lockbase.service.SecurityQuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/lockbase/SecQue")
@@ -29,7 +31,7 @@ public class SecurityQuestionController {
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping(value = "/save_user_sec_que", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Boolean saveUserSecQue(@RequestBody MapSecQueDTO mapSecQueDTO){
+    public ResponseEntity<Map<String, Object>> saveUserSecQue(@RequestBody MapSecQueDTO mapSecQueDTO){
         return securityQuestionService.saveUserSecQue(mapSecQueDTO);
     }
 
@@ -40,10 +42,10 @@ public class SecurityQuestionController {
         return securityQuestionService.getUserSecQue(userQueDTO);
     }
 
-//    @ResponseBody
-//    @ResponseStatus(HttpStatus.ACCEPTED)
-//    @PostMapping(value = "/validate_sec_ans", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public List<SecAnsDTO> validateUserSecQue(@RequestBody UserQueDTO userQueDTO){
-//        return securityQuestionService.getUserSecQue(userQueDTO);
-//    }
+    @ResponseBody
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @PostMapping(value = "/validate_sec_ans", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<SecAnsDTO> validateUserSecQue(@RequestBody UserQueDTO userQueDTO){
+        return securityQuestionService.getUserSecQue(userQueDTO);
+    }
 }
