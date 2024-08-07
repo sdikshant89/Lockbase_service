@@ -11,5 +11,4 @@ public class SecAnsDTO {
 
     private Integer queId;
     private String question;
-    private String answer;
 }

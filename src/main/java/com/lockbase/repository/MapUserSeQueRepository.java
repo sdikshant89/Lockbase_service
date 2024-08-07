@@ -11,7 +11,7 @@ import java.util.List;
 public interface MapUserSeQueRepository extends JpaRepository<MapUserSeQue, Integer> {
 
     @Query("SELECT new com.lockbase.dto.SecAnsDTO(musq.securityQuestion.id, musq.securityQuestion" +
-            ".question, musq.answer) from " +
+            ".question) from " +
             "MapUserSeQue musq where" +
             " musq.user.id = :userId")
     List<SecAnsDTO> findAnsByUserId(@Param("userId") Integer userId);

@@ -1,13 +1,13 @@
 package com.lockbase.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class MapSecQueDTO {
 
@@ -15,9 +15,9 @@ public class MapSecQueDTO {
     private List<SecurityQuestionDTO> queAns;
 
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
-    public class SecurityQuestionDTO {
-
+    public static class SecurityQuestionDTO {
         private Integer questionId;
         private String answer;
     }

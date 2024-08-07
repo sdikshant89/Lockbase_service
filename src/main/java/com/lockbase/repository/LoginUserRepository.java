@@ -9,8 +9,9 @@ import java.util.Optional;
 
 public interface LoginUserRepository extends JpaRepository<LoginUser, Integer> {
 
-    @Query("Select u from LoginUser u where u.email = :email")
-    public LoginUser findUserByEmail(@Param("email") String email);
+    @Query("Select u from LoginUser u where u.email = :email and u.username = :username")
+    public LoginUser findUserByEmailAndUsername(@Param("email") String email,
+                                                @Param("username") String username);
 
     @Query("Select u from LoginUser u where u.email = :email and u.id =:id")
     public LoginUser findUserByEmailAndId(@Param("email") String email, @Param("id") Integer id);

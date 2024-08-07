@@ -3,7 +3,6 @@ package com.lockbase.controller;
 import com.lockbase.dto.MapSecQueDTO;
 import com.lockbase.dto.SecAnsDTO;
 import com.lockbase.dto.UserQueDTO;
-import com.lockbase.model.MapUserSeQue;
 import com.lockbase.model.SecurityQuestion;
 import com.lockbase.service.SecurityQuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,30 +21,29 @@ public class SecurityQuestionController {
 
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @GetMapping(value = "/get_questions", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/get_all_questions", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<SecurityQuestion> findAllQuestions(){
         return securityQuestionService.findAllQuestions();
     }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @GetMapping(value = "/get_mapping", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<MapUserSeQue> getAll(){
-        return securityQuestionService.getAll();
+    @PostMapping(value = "/save_user_sec_que", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Boolean saveUserSecQue(@RequestBody MapSecQueDTO mapSecQueDTO){
+        return securityQuestionService.saveUserSecQue(mapSecQueDTO);
     }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @PostMapping(value = "/get_user_sec_que", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/get_user_que", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<SecAnsDTO> getUserSecQue(@RequestBody UserQueDTO userQueDTO){
         return securityQuestionService.getUserSecQue(userQueDTO);
     }
 
-    @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    @PostMapping(value = "/save_user_sec_que", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<SecAnsDTO> saveUserSecQue(@RequestBody MapSecQueDTO mapSecQueDTO){
-        //return securityQuestionService.getUserSecQue(mapSecQueDTO);
-        return null;
-    }
+//    @ResponseBody
+//    @ResponseStatus(HttpStatus.ACCEPTED)
+//    @PostMapping(value = "/validate_sec_ans", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public List<SecAnsDTO> validateUserSecQue(@RequestBody UserQueDTO userQueDTO){
+//        return securityQuestionService.getUserSecQue(userQueDTO);
+//    }
 }

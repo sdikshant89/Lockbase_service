@@ -23,7 +23,8 @@ public class UserService {
 
     public LoginUser createUser(UserDTO userDTO){
         LoginUser new_user = new LoginUser();
-        LoginUser exists = userRepository.findUserByEmail(userDTO.getEmail());
+        LoginUser exists = userRepository.findUserByEmailAndUsername(userDTO.getEmail(),
+                userDTO.getUsername());
 
         if(Objects.isNull(exists)){
             try{
