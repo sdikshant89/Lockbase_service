@@ -45,7 +45,7 @@ public class SecurityQuestionService {
     }
 
     public List<SecAnsDTO> getUserSecQue(UserQueDTO userQueDTO){
-        LoginUser activeUser = null;
+        LoginUser activeUser;
         List<SecAnsDTO> userSecQue = null;
         try{
             activeUser = userRepository.findUserByEmailAndId(userQueDTO.getEmail(),
