@@ -22,4 +22,13 @@ public class PasswordUtil {
         }
         return pass_enc;
     }
+
+    public Boolean decodeAndCheckPass(String dbPass, String reqPass){
+        try{
+            return encoder.matches(reqPass, dbPass);
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        return Boolean.FALSE;
+    }
 }

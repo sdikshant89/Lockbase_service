@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class RegistrationService {
@@ -40,6 +41,15 @@ public class RegistrationService {
             }
         }
         return null;
+    }
+
+    public UserResponseDTO loginUser(UserDTO userDTO){
+        Optional<LoginUser> exists = userRepository.findByUsername(userDTO.getUsername());
+        UserResponseDTO respDTO = null;
+        exists.ifPresent(user -> {
+            respDTO = createResponse(user);
+        });
+        return respDTO;
     }
 
     public UserResponseDTO createResponse(LoginUser user){
