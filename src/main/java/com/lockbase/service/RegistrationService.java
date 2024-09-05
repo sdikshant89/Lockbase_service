@@ -44,12 +44,9 @@ public class RegistrationService {
     }
 
     public UserResponseDTO loginUser(UserDTO userDTO){
-        Optional<LoginUser> exists = userRepository.findByUsername(userDTO.getUsername());
-        UserResponseDTO respDTO = null;
-        exists.ifPresent(user -> {
-            respDTO = createResponse(user);
-        });
-        return respDTO;
+        return userRepository.findByUsername(userDTO.getUsername())
+                .map(this::createResponse)  // Transform the found user to a response DTO
+                .orElse(null);
     }
 
     public UserResponseDTO createResponse(LoginUser user){
