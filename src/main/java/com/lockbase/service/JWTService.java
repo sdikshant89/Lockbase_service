@@ -29,7 +29,7 @@ public class JWTService {
                 .claims(claims)
                 .subject(user.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 3)))
+                .expiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 3))) //3 Hours
                 .signWith(getSignInKey())
                 .compact();
     }
@@ -43,6 +43,11 @@ public class JWTService {
     // Checks if the claim's subject have username and its not expired.
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractClaim(token, Claims::getSubject);
+
+        // It is stupid to check the username again with the userDetails because we initially got
+        // the userDetails entity using the same username from the token -- so ofc it would be
+        // the same username -- check class JWTAuthFilter -- function doFilterInternal() where
+        // this function is called.
         return (username.equals(userDetails.getUsername())) && !(extractClaim(token, Claims::getExpiration).before(new Date()));
     }
 }

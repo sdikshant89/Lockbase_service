@@ -17,4 +17,5 @@ public class UserResponseDTO {
     private String username;
     private String email;
     private Timestamp createDate;
+    private String errorMessage;
 }

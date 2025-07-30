@@ -1,6 +1,7 @@
 package com.lockbase.controller;
 
 import com.lockbase.dto.UserDTO;
+import com.lockbase.dto.UserResponseDTO;
 import com.lockbase.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,12 +19,9 @@ public class RegistrationController {
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping(value = "/register_user", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> registerUser(@RequestBody UserDTO user){
-        Object response = registrationService.registerUser(user);
-        if (response == null){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<UserResponseDTO> registerUser(@RequestBody UserDTO user){
+        UserResponseDTO response = registrationService.registerUser(user);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @ResponseBody

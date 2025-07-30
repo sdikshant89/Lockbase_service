@@ -17,4 +17,6 @@ public interface LoginUserRepository extends JpaRepository<LoginUser, Integer> {
     public LoginUser findUserByEmailAndId(@Param("email") String email, @Param("id") Integer id);
 
     Optional<LoginUser> findByUsername(String username);
+
+    Optional<LoginUser> findByEmail(String email);
 }
