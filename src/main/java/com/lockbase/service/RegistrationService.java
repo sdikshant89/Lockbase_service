@@ -6,6 +6,7 @@ import com.lockbase.exception.InternalServerException;
 import com.lockbase.exception.UserAlreadyExistsException;
 import com.lockbase.model.LoginUser;
 import com.lockbase.repository.LoginUserRepository;
+import com.lockbase.util.CryptoUtil;
 import com.lockbase.util.PasswordUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -29,7 +30,8 @@ public class RegistrationService {
         }
         try{
             LoginUser user = populateNewUser(userDTO);
-            return createResponse(userRepository.save(user));
+            LoginUser savedUser = userRepository.save(user);
+            return createResponse(savedUser);
         }catch (Exception e){
             throw new InternalServerException("An error occurred while registering the user.", e);
         }
@@ -41,14 +43,30 @@ public class RegistrationService {
         return null;
     }
 
-    public LoginUser populateNewUser(UserDTO userDTO){
-        LoginUser new_user = new LoginUser();
-        BeanUtils.copyProperties(userDTO, new_user);
+    public LoginUser populateNewUser(UserDTO userDTO) {
+        try {
+            // Generate salt, iv, and secure PRK
+            byte[] salt = CryptoUtil.generateSalt();
+            byte[] iv = CryptoUtil.generateIv();
 
-        Date date = new Date();
-        new_user.setCreateDate(new Timestamp(date.getTime()));
-        new_user.setPassword(passwordUtil.encodePass(userDTO.getPassword()));
-        return new_user;
+            byte[] prkBytes = CryptoUtil.generateRandomBytes(32);
+            String prkPlaintext = CryptoUtil.toBase64(prkBytes);
+
+            String encryptedPrk = CryptoUtil.encrypt(prkPlaintext, userDTO.getPassword(), salt, iv);
+            String encodedPassword = passwordUtil.encodePass(userDTO.getPassword());
+
+            LoginUser newUser = new LoginUser();
+            BeanUtils.copyProperties(userDTO, newUser);
+            newUser.setCreateDate(new Timestamp(new Date().getTime()));
+            newUser.setPassword(encodedPassword);
+//            newUser.setSalt(CryptoUtil.toBase64(salt));
+//            newUser.setIv(CryptoUtil.toBase64(iv));
+//            newUser.setEncPrkPassword(encryptedPrk);
+            return newUser;
+
+        } catch (Exception e) {
+            throw new InternalServerException("User registration failed during encryption step.", e);
+        }
     }
 
     public UserResponseDTO createResponse(LoginUser user){
