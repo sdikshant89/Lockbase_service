@@ -49,13 +49,23 @@ public class LoginUser implements UserDetails {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
-//    public boolean isDeleted() {
-//        return isDeleted;
-//    }
-//
-//    public void setDeleted(boolean deleted) {
-//        isDeleted = deleted;
-//    }
+    @Column(name = "is_verified", nullable = false)
+    private boolean isVerified;
+
+    @Column(name = "otp", length = 6)
+    private String otp;
+
+    @Column(name = "otp_expiry")
+    private Timestamp otpExpiry;
+
+    @Column(name = "iv_pass", nullable = false, columnDefinition = "TEXT")
+    private String ivPass;
+
+    @Column(name = "salt_pass", nullable = false, columnDefinition = "TEXT")
+    private String saltPass;
+
+    @Column(name = "enc_prk_pass", nullable = false, columnDefinition = "TEXT")
+    private String encPrkPass;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

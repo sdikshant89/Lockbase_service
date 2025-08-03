@@ -39,18 +39,17 @@ public class RegistrationService {
 
     public UserResponseDTO loginUser(UserDTO userDTO){
         Optional<LoginUser> user =  userRepository.findByEmail(userDTO.getEmail());
-
         return null;
     }
 
     public LoginUser populateNewUser(UserDTO userDTO) {
         try {
-            // Generate salt, iv, and secure PRK
-            byte[] salt = CryptoUtil.generateSalt();
-            byte[] iv = CryptoUtil.generateIv();
 
             byte[] prkBytes = CryptoUtil.generateRandomBytes(32);
             String prkPlaintext = CryptoUtil.toBase64(prkBytes);
+
+            byte[] salt = CryptoUtil.generateSalt();
+            byte[] iv = CryptoUtil.generateIv();
 
             String encryptedPrk = CryptoUtil.encrypt(prkPlaintext, userDTO.getPassword(), salt, iv);
             String encodedPassword = passwordUtil.encodePass(userDTO.getPassword());
@@ -59,9 +58,9 @@ public class RegistrationService {
             BeanUtils.copyProperties(userDTO, newUser);
             newUser.setCreateDate(new Timestamp(new Date().getTime()));
             newUser.setPassword(encodedPassword);
-//            newUser.setSalt(CryptoUtil.toBase64(salt));
-//            newUser.setIv(CryptoUtil.toBase64(iv));
-//            newUser.setEncPrkPassword(encryptedPrk);
+            newUser.setIvPass(CryptoUtil.toBase64(iv));
+            newUser.setSaltPass(CryptoUtil.toBase64(salt));
+            newUser.setEncPrkPass(encryptedPrk);
             return newUser;
 
         } catch (Exception e) {
