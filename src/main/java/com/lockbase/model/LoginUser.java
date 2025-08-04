@@ -52,7 +52,7 @@ public class LoginUser implements UserDetails {
     @Column(name = "is_verified", nullable = false)
     private boolean isVerified;
 
-    @Column(name = "otp", length = 6)
+    @Column(name = "otp")
     private String otp;
 
     @Column(name = "otp_expiry")

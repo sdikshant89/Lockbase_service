@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class SecurityQuestionService {
@@ -75,7 +74,7 @@ public class SecurityQuestionService {
                             MapUserSeQue.builder()
                                     .user(loginUser)
                                     .securityQuestion(question.get())
-                                    .answer(passwordUtil.encodePass(dto.getAnswer()))
+                                    .answer(passwordUtil.hashPass(dto.getAnswer()))
                                     .build();
                     sec_que_ans.add(mapUserSeQue);
                 }

@@ -14,8 +14,10 @@ import java.sql.Timestamp;
 public class UserResponseDTO {
 
     private Integer id;
-    private String username;
     private String email;
     private Timestamp createDate;
     private String errorMessage;
+    private String status;
+    private String message;
+    private Timestamp otpExpiry;
 }

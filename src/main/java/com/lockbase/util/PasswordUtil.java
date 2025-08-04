@@ -13,7 +13,7 @@ public class PasswordUtil {
         this.encoder = new BCryptPasswordEncoder();
     }
 
-    public String encodePass(String pass){
+    public String hashPass(String pass){
         String pass_enc = null;
         try{
             pass_enc = encoder.encode(pass);

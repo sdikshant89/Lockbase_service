@@ -34,4 +34,14 @@ public class RegistrationController {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PostMapping(value = "/resend_otp", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> resendOtp(@RequestParam("email") String email) {
+        boolean success = registrationService.resendOtp(email);
+        if (success) {
+            return new ResponseEntity<>("OTP resent successfully.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to resend OTP. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

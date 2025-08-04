@@ -22,6 +22,7 @@ public class RegistrationService {
 
     private final LoginUserRepository userRepository;
     private final PasswordUtil passwordUtil;
+    private final EmailService emailService;
 
     public UserResponseDTO registerUser(UserDTO userDTO){
         Optional<LoginUser> exists = userRepository.findByEmail(userDTO.getEmail());
@@ -30,16 +31,46 @@ public class RegistrationService {
         }
         try{
             LoginUser user = populateNewUser(userDTO);
+
+            String otp = emailService.generateOtp();
+            user.setOtp(passwordUtil.hashPass(otp));
+            user.setOtpExpiry(emailService.getExpiryTimestamp(2));
             LoginUser savedUser = userRepository.save(user);
+
+            boolean sent = emailService.sendOtp(userDTO.getEmail(), otp);
+            if (!sent) {
+                return createResponse(savedUser, "OTP_FAILED", "User created but OTP could not be sent. Please resend.");
+            }
+
             return createResponse(savedUser);
         }catch (Exception e){
-            throw new InternalServerException("An error occurred while registering the user.", e);
+            return UserResponseDTO.builder()
+                    .status("FAILED")
+                    .message("An unexpected error occurred during registration.")
+                    .errorMessage(e.getMessage())
+                    .build();
         }
     }
 
     public UserResponseDTO loginUser(UserDTO userDTO){
         Optional<LoginUser> user =  userRepository.findByEmail(userDTO.getEmail());
         return null;
+    }
+
+    public boolean resendOtp(String email) {
+        Optional<LoginUser> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+        LoginUser user = userOpt.get();
+
+        String otp = emailService.generateOtp();
+        user.setOtp(passwordUtil.hashPass(otp));
+        user.setOtpExpiry(emailService.getExpiryTimestamp(2));
+
+        userRepository.save(user);
+
+        return emailService.sendOtp(email, otp);
     }
 
     public LoginUser populateNewUser(UserDTO userDTO) {
@@ -52,7 +83,7 @@ public class RegistrationService {
             byte[] iv = CryptoUtil.generateIv();
 
             String encryptedPrk = CryptoUtil.encrypt(prkPlaintext, userDTO.getPassword(), salt, iv);
-            String encodedPassword = passwordUtil.encodePass(userDTO.getPassword());
+            String encodedPassword = passwordUtil.hashPass(userDTO.getPassword());
 
             LoginUser newUser = new LoginUser();
             BeanUtils.copyProperties(userDTO, newUser);
@@ -68,11 +99,18 @@ public class RegistrationService {
         }
     }
 
-    public UserResponseDTO createResponse(LoginUser user){
+    public UserResponseDTO createResponse(LoginUser user) {
+        return createResponse(user, "OTP_PENDING", "User registered successfully. Please verify OTP.");
+    }
+
+    public UserResponseDTO createResponse(LoginUser user, String status, String message) {
         return UserResponseDTO.builder()
                 .id(user.getId())
-                .username(user.getUsername())
                 .email(user.getEmail())
-                .createDate(user.getCreateDate()).build();
+                .createDate(user.getCreateDate())
+                .status(status)
+                .message(message)
+                .otpExpiry(user.getOtpExpiry())
+                .build();
     }
 }
