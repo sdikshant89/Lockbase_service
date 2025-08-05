@@ -3,7 +3,6 @@ package com.lockbase.service;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.internet.MimeMessage;
@@ -56,19 +55,23 @@ public class EmailService {
     private String buildHtmlContent(String otp) {
         return """
             <html>
-              <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #1f2937; color: white;">
-                <div style="max-width: 500px; margin: auto; background-color: #111827; border-radius: 12px; padding: 30px; text-align: center;">
-                  <h1 style="font-size: 36px; font-weight: 700; background: linear-gradient(to right, #6366f1, #fb923c); -webkit-background-clip: text; color: transparent; margin-bottom: 20px;">
+              <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333;">
+                <div style="max-width: 480px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 30px; text-align: center;">
+                  <h1 style="font-size: 36px; font-weight: 700; background: linear-gradient(to right, #6366f1, #fb923c); -webkit-background-clip: text; color: transparent; margin-bottom: 24px;">
                     Lockbase
                   </h1>
-                  <p style="font-size: 18px; color: #d1d5db;">Hi there,</p>
-                  <p style="font-size: 18px; color: #d1d5db;">Your one-time password (OTP) is:</p>
-                  <div style="font-size: 32px; font-weight: bold; color: #60a5fa; margin: 20px 0;">%s</div>
-                  <p style="color: #9ca3af;">This code will expire in <b>5 minutes</b>. Do not share it with anyone.</p>
-                  <div style="margin-top: 30px; border-top: 1px solid #374151; padding-top: 20px;">
-                    <p style="font-size: 14px; color: #6b7280;">Already have an account?</p>
-                    <a href="https://yourdomain.com/sign-in" style="color: #3b82f6; text-decoration: none; font-size: 16px;">Sign In</a>
-                  </div>
+        
+                  <p style="font-size: 16px; color: #555;">Hi there,</p>
+                  <p style="font-size: 16px; color: #555;">Your one-time password (OTP) is:</p>
+        
+                  <div style="font-size: 28px; font-weight: bold; color: #1d4ed8; margin: 20px 0;">%s</div>
+        
+                  <p style="font-size: 14px; color: #777;">This OTP is valid for <b>5 minutes</b>. Please do not share it with anyone.</p>
+        
+                  <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;"/>
+        
+                  <p style="font-size: 14px; color: #999;">Already have an account?</p>
+                  <a href="https://yourdomain.com/sign-in" style="color: #3b82f6; text-decoration: none; font-size: 15px;">Sign In</a>
                 </div>
               </body>
             </html>

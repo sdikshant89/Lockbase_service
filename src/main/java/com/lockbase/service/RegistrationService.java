@@ -2,18 +2,15 @@ package com.lockbase.service;
 
 import com.lockbase.dto.UserDTO;
 import com.lockbase.dto.UserResponseDTO;
-import com.lockbase.exception.InternalServerException;
 import com.lockbase.exception.UserAlreadyExistsException;
 import com.lockbase.model.LoginUser;
 import com.lockbase.repository.LoginUserRepository;
-import com.lockbase.util.CryptoUtil;
 import com.lockbase.util.PasswordUtil;
+import com.lockbase.util.UserUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -23,6 +20,7 @@ public class RegistrationService {
     private final LoginUserRepository userRepository;
     private final PasswordUtil passwordUtil;
     private final EmailService emailService;
+    private final UserUtil userUtil;
 
     public UserResponseDTO registerUser(UserDTO userDTO){
         Optional<LoginUser> exists = userRepository.findByEmail(userDTO.getEmail());
@@ -30,7 +28,7 @@ public class RegistrationService {
             throw new UserAlreadyExistsException("User with the username and email already exists, try logging in.");
         }
         try{
-            LoginUser user = populateNewUser(userDTO);
+            LoginUser user = userUtil.populateNewUser(userDTO);
 
             String otp = emailService.generateOtp();
             user.setOtp(passwordUtil.hashPass(otp));
@@ -39,10 +37,11 @@ public class RegistrationService {
 
             boolean sent = emailService.sendOtp(userDTO.getEmail(), otp);
             if (!sent) {
-                return createResponse(savedUser, "OTP_FAILED", "User created but OTP could not be sent. Please resend.");
+                return userUtil.createResponse(savedUser, "OTP_FAILED", "User created but OTP " +
+                        "could not be sent. Please resend.");
             }
 
-            return createResponse(savedUser);
+            return userUtil.createResponse(savedUser);
         }catch (Exception e){
             return UserResponseDTO.builder()
                     .status("FAILED")
@@ -53,7 +52,7 @@ public class RegistrationService {
     }
 
     public UserResponseDTO loginUser(UserDTO userDTO){
-        Optional<LoginUser> user =  userRepository.findByEmail(userDTO.getEmail());
+        //Optional<LoginUser> user =  userRepository.findByEmail(userDTO.getEmail());
         return null;
     }
 
@@ -73,44 +72,28 @@ public class RegistrationService {
         return emailService.sendOtp(email, otp);
     }
 
-    public LoginUser populateNewUser(UserDTO userDTO) {
-        try {
-
-            byte[] prkBytes = CryptoUtil.generateRandomBytes(32);
-            String prkPlaintext = CryptoUtil.toBase64(prkBytes);
-
-            byte[] salt = CryptoUtil.generateSalt();
-            byte[] iv = CryptoUtil.generateIv();
-
-            String encryptedPrk = CryptoUtil.encrypt(prkPlaintext, userDTO.getPassword(), salt, iv);
-            String encodedPassword = passwordUtil.hashPass(userDTO.getPassword());
-
-            LoginUser newUser = new LoginUser();
-            BeanUtils.copyProperties(userDTO, newUser);
-            newUser.setCreateDate(new Timestamp(new Date().getTime()));
-            newUser.setPassword(encodedPassword);
-            newUser.setIvPass(CryptoUtil.toBase64(iv));
-            newUser.setSaltPass(CryptoUtil.toBase64(salt));
-            newUser.setEncPrkPass(encryptedPrk);
-            return newUser;
-
-        } catch (Exception e) {
-            throw new InternalServerException("User registration failed during encryption step.", e);
+    public Boolean verifyOtp(String email, String otp) {
+        try{
+            Optional<LoginUser> userOpt = userRepository.findByEmail(email);
+            if (userOpt.isEmpty()){
+                return false;
+            }
+            LoginUser user = userOpt.get();
+            if (user.getOtpExpiry() == null || user.getOtpExpiry().before(new Timestamp(System.currentTimeMillis()))) {
+                return false;
+            }
+            Boolean isMatch = passwordUtil.checkPass(user.getOtp(), passwordUtil.hashPass(otp));
+            if (!isMatch){
+                return false;
+            }
+            user.setOtp(null);
+            user.setOtpExpiry(null);
+            user.setVerified(true);
+            userRepository.save(user);
+            return true;
+        }catch (Exception e){
+            //Log error
+            return false;
         }
-    }
-
-    public UserResponseDTO createResponse(LoginUser user) {
-        return createResponse(user, "OTP_PENDING", "User registered successfully. Please verify OTP.");
-    }
-
-    public UserResponseDTO createResponse(LoginUser user, String status, String message) {
-        return UserResponseDTO.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .createDate(user.getCreateDate())
-                .status(status)
-                .message(message)
-                .otpExpiry(user.getOtpExpiry())
-                .build();
     }
 }
