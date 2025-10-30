@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
@@ -22,16 +23,12 @@ public class JWTService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Generates token using claims and secret key
-    public String generateToken(Map<String, Object> claims, LoginUser user){
-        return Jwts
-                .builder()
-                .claims(claims)
-                .subject(user.getUsername())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 3))) //3 Hours
-                .signWith(getSignInKey())
-                .compact();
+    public String generateAccessToken(Map<String, Object> claims, LoginUser user) {
+        return generateToken(claims, user, Duration.ofMinutes(45));
+    }
+
+    public String generateRefreshToken(LoginUser user) {
+        return generateToken(Map.of(), user, Duration.ofDays(7)); // 7 days
     }
 
     // Checks if the token is valid and returns claims if it is
@@ -49,5 +46,21 @@ public class JWTService {
         // the same username -- check class JWTAuthFilter -- function doFilterInternal() where
         // this function is called.
         return (username.equals(userDetails.getUsername())) && !(extractClaim(token, Claims::getExpiration).before(new Date()));
+    }
+
+    public boolean isTokenExpired(String token) {
+        return extractClaim(token, Claims::getExpiration).before(new Date());
+    }
+
+    private String generateToken(Map<String, Object> claims, LoginUser user, Duration duration) {
+        Date expiry = new Date(new Date().getTime() + duration.toMillis());
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(user.getUsername())
+                .issuedAt(new Date())
+                .expiration(expiry)
+                .signWith(getSignInKey())
+                .compact();
     }
 }

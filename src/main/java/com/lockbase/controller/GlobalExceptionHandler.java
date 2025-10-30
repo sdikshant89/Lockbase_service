@@ -28,7 +28,6 @@ public class GlobalExceptionHandler {
 
     public UserResponseDTO createNullableObject(Exception e){
         return UserResponseDTO.builder()
-                .username(null)
                 .email(null)
                 .id(null)
                 .createDate(null)

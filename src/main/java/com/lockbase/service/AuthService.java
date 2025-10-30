@@ -8,19 +8,23 @@ import com.lockbase.repository.LoginUserRepository;
 import com.lockbase.util.PasswordUtil;
 import com.lockbase.util.UserUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class RegistrationService {
+public class AuthService {
 
     private final LoginUserRepository userRepository;
     private final PasswordUtil passwordUtil;
     private final EmailService emailService;
     private final UserUtil userUtil;
+    private final JWTService jwtService;
 
     public UserResponseDTO registerUser(UserDTO userDTO){
         Optional<LoginUser> exists = userRepository.findByEmail(userDTO.getEmail());
@@ -94,6 +98,28 @@ public class RegistrationService {
         }catch (Exception e){
             //Log error
             return false;
+        }
+    }
+
+    public ResponseEntity<?> refreshAccessToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing refresh token"));
+        }
+
+        try {
+            String username = jwtService.extractClaim(refreshToken, Claims::getSubject);
+            LoginUser user = null;
+                    //(LoginUser) userDetailsService.loadUserByUsername(username);
+
+            if (jwtService.isTokenExpired(refreshToken)) {
+                return ResponseEntity.status(401).body(Map.of("error", "Refresh token expired"));
+            }
+
+            String newAccessToken = jwtService.generateAccessToken(Map.of(), user);
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(Map.of("error", "Invalid refresh token"));
         }
     }
 }
