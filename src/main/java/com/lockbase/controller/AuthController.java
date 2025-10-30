@@ -4,11 +4,14 @@ import com.lockbase.dto.UserDTO;
 import com.lockbase.dto.VerifyOtpRequestDTO;
 import com.lockbase.dto.UserResponseDTO;
 import com.lockbase.service.AuthService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.WebUtils;
 
 @RestController
 @RequiredArgsConstructor
