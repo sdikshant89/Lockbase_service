@@ -3,6 +3,8 @@ package com.lockbase.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class UserDTO {
@@ -12,4 +14,6 @@ public class UserDTO {
     private String password;
     private String country_code;
     private String phone_number;
+
+    private List<SecurityAnswerDTO> securityQueAns;
 }

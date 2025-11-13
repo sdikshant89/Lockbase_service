@@ -1,10 +1,15 @@
 package com.lockbase.service;
 
+import com.lockbase.dto.SecurityAnswerDTO;
 import com.lockbase.dto.UserDTO;
 import com.lockbase.dto.UserResponseDTO;
+import com.lockbase.exception.InternalServerException;
+import com.lockbase.exception.OtpSendFailedException;
 import com.lockbase.exception.UserAlreadyExistsException;
 import com.lockbase.model.LoginUser;
+import com.lockbase.model.SecurityQuestion;
 import com.lockbase.repository.LoginUserRepository;
+import com.lockbase.repository.SecurityQuestionRepository;
 import com.lockbase.util.PasswordUtil;
 import com.lockbase.util.UserUtil;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +18,7 @@ import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,7 @@ public class AuthService {
     private final EmailService emailService;
     private final UserUtil userUtil;
     private final JWTService jwtService;
+    private final SecurityQuestionRepository securityQuestionRepository;
 
     public UserResponseDTO registerUser(UserDTO userDTO){
         Optional<LoginUser> exists = userRepository.findByEmail(userDTO.getEmail());
@@ -32,6 +37,7 @@ public class AuthService {
             throw new UserAlreadyExistsException("User with the username and email already exists, try logging in.");
         }
         try{
+            validateSecurityQuestions(userDTO.getSecurityQueAns());
             LoginUser user = userUtil.populateNewUser(userDTO);
 
             String otp = emailService.generateOtp();
@@ -41,17 +47,13 @@ public class AuthService {
 
             boolean sent = emailService.sendOtp(userDTO.getEmail(), otp);
             if (!sent) {
-                return userUtil.createResponse(savedUser, "OTP_FAILED", "User created but OTP " +
-                        "could not be sent. Please resend.");
+                throw new OtpSendFailedException("User created but OTP could not be sent. Please resend");
             }
 
+            // TODO: Save map user security question
             return userUtil.createResponse(savedUser);
         }catch (Exception e){
-            return UserResponseDTO.builder()
-                    .status("FAILED")
-                    .message("An unexpected error occurred during registration.")
-                    .errorMessage(e.getMessage())
-                    .build();
+            throw new InternalServerException("User registration failed during encryption step.", e);
         }
     }
 
@@ -72,7 +74,6 @@ public class AuthService {
         user.setOtpExpiry(emailService.getExpiryTimestamp(2));
 
         userRepository.save(user);
-
         return emailService.sendOtp(email, otp);
     }
 
@@ -120,6 +121,28 @@ public class AuthService {
 
         } catch (Exception e) {
             return ResponseEntity.status(403).body(Map.of("error", "Invalid refresh token"));
+        }
+    }
+
+    private void validateSecurityQuestions(List<SecurityAnswerDTO> answers) {
+
+        if (answers == null || answers.size() != 2) {
+            throw new IllegalArgumentException("Exactly 2 security questions are required.");
+        }
+
+        Set<Integer> ids = new HashSet<>();
+        for (SecurityAnswerDTO dto : answers) {
+            if (!ids.add(dto.getQuestionId())) {
+                throw new IllegalArgumentException("Duplicate security question selected: " + dto.getQuestionId());
+            }
+
+            SecurityQuestion q =
+                    securityQuestionRepository.findById(dto.getQuestionId())
+                            .orElseThrow(() -> new IllegalArgumentException("Invalid question ID: " + dto.getQuestionId()));
+
+            if (dto.getAnswer() == null || dto.getAnswer().trim().isEmpty()) {
+                throw new IllegalArgumentException("Answer cannot be empty for question: " + q.getQuestion());
+            }
         }
     }
 }

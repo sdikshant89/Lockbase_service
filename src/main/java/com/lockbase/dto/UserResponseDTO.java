@@ -19,5 +19,6 @@ public class UserResponseDTO {
     private String errorMessage;
     private String status;
     private String message;
+    private String code;
     private Timestamp otpExpiry;
 }

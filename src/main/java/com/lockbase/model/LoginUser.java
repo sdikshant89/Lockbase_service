@@ -67,6 +67,15 @@ public class LoginUser implements UserDetails {
     @Column(name = "enc_prk_pass", nullable = false, columnDefinition = "TEXT")
     private String encPrkPass;
 
+    @Column(name = "iv_recovery", nullable = false, columnDefinition = "TEXT")
+    private String ivRecovery;
+
+    @Column(name = "salt_recovery", nullable = false, columnDefinition = "TEXT")
+    private String saltRecovery;
+
+    @Column(name = "enc_prk_recovery", nullable = false, columnDefinition = "TEXT")
+    private String encPrkRecovery;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList();
