@@ -72,9 +72,7 @@ public class UserUtil {
     public UserResponseDTO createResponse(LoginUser user, String status, String message,
                                           Boolean success) {
         return UserResponseDTO.builder()
-                .id(user.getId())
                 .email(user.getEmail())
-                .createDate(user.getCreateDate())
                 .status(status)
                 .message(message)
                 .success(success)
