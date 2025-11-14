@@ -1,17 +1,15 @@
 package com.lockbase.util;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class PasswordUtil {
 
     private final PasswordEncoder encoder;
-
-    public PasswordUtil() {
-        this.encoder = new BCryptPasswordEncoder();
-    }
 
     public String hashPass(String pass){
         String pass_enc = null;

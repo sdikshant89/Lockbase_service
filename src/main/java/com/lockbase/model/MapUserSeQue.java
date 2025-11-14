@@ -32,14 +32,7 @@ public class MapUserSeQue {
     @Column(name = "answer")
     private String answer;
 
-    @Column(name = "is_deleted")
-    private boolean isDeleted;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
-//    public boolean isDeleted() {
-//        return isDeleted;
-//    }
-//
-//    public void setDeleted(boolean deleted) {
-//        isDeleted = deleted;
-//    }
 }

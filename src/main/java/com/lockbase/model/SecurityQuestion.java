@@ -1,13 +1,18 @@
 package com.lockbase.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "security_questions")
 public class SecurityQuestion {
-
-    public SecurityQuestion() {
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,20 +21,4 @@ public class SecurityQuestion {
 
     @Column(name = "question")
     private String question;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
-    }
 }

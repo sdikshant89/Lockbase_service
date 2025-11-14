@@ -36,13 +36,11 @@ public class GlobalExceptionHandler {
                 "INTERNAL_SERVER_ERROR"));
     }
 
-    public UserResponseDTO createNullableObject(Exception e, String code){
+    public UserResponseDTO createNullableObject(Exception e, String status){
         return UserResponseDTO.builder()
-                .email(null)
-                .id(null)
-                .createDate(null)
+                .status(status)
                 .errorMessage(e.getMessage())
-                .code(code)
+                .success(Boolean.FALSE)
                 .build();
     }
 }

@@ -13,12 +13,11 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class UserResponseDTO {
 
-    private Integer id;
     private String email;
-    private Timestamp createDate;
-    private String errorMessage;
     private String status;
     private String message;
-    private String code;
+    private String errorMessage;
+    private Boolean success;
     private Timestamp otpExpiry;
+
 }

@@ -30,6 +30,13 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    // "send_otp"
+    @PostMapping(value = "/send_otp", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponseDTO> resendOtp(@RequestParam("email") String email) {
+        UserResponseDTO response = authService.sendOtp(email);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     // "login_user"
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -40,17 +47,6 @@ public class AuthController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    // "resend_otp"
-    @PostMapping(value = "/resend_otp", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> resendOtp(@RequestParam("email") String email) {
-        boolean success = authService.resendOtp(email);
-        if (success) {
-            return new ResponseEntity<>("OTP resent successfully.", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Failed to resend OTP. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     // "verify_otp"
