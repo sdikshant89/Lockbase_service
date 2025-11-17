@@ -45,8 +45,8 @@ public class UserUtil {
             LoginUser newUser = new LoginUser();
             newUser.setUsername(userDTO.getUsername().trim().replaceAll("\\s+", " "));
             newUser.setEmail(userDTO.getEmail().trim().toLowerCase());
-            newUser.setCountry_code(userDTO.getCountry_code());
-            newUser.setPhone_number(userDTO.getPhone_number().replaceAll("[^0-9+]", ""));
+            newUser.setCountry_code(userDTO.getCountryCode());
+            newUser.setPhone_number(userDTO.getCellNumber().replaceAll("[^0-9+]", ""));
             newUser.setCreateDate(new Timestamp(new Date().getTime()));
             newUser.setPassword(passwordUtil.hashPass(userDTO.getPassword()));
 

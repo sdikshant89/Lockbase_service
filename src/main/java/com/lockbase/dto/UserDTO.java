@@ -12,8 +12,8 @@ public class UserDTO {
     private String username;
     private String email;
     private String password;
-    private String country_code;
-    private String phone_number;
+    private String countryCode;
+    private String cellNumber;
 
     private List<SecurityAnswerDTO> securityQueAns;
 }
