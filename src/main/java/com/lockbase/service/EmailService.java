@@ -66,7 +66,7 @@ public class EmailService {
         
                   <div style="font-size: 28px; font-weight: bold; color: #1d4ed8; margin: 20px 0;">%s</div>
         
-                  <p style="font-size: 14px; color: #777;">This OTP is valid for <b>5 minutes</b>. Please do not share it with anyone.</p>
+                  <p style="font-size: 14px; color: #777;">This OTP is valid for <b>10 minutes</b>. Please do not share it with anyone.</p>
         
                   <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;"/>
         

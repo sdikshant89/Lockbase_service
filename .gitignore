@@ -1,6 +1,16 @@
 # Compiled class file
 *.class
 
+# Spring Boot config
+application.yml
+application-dev.yml
+application-prod.yml
+
+# For resources folder
+src/main/resources/application.yml
+src/main/resources/*.yml
+src/main/resources/application-*.yml
+
 # Log file
 *.log
 

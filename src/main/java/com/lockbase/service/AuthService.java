@@ -49,31 +49,28 @@ public class AuthService {
             LoginUser user = userUtil.populateNewUser(userDTO);
             LoginUser savedUser = userRepository.save(user);
             saveSecurityQuestionAnswers(savedUser, userDTO.getSecurityQueAns());
-            return userUtil.createResponse(savedUser, "USER_SAVED", "User saved successfully",
+
+            sendOtp(savedUser);
+
+            return userUtil.createResponse(savedUser, "OTP_SENT", "User registered successfully. OTP sent.",
                     Boolean.TRUE);
         }catch (Exception e){
             throw new InternalServerException("User registration failed during encryption step.", e);
         }
     }
 
-    public UserResponseDTO sendOtp(String email) {
-        Optional<LoginUser> userOtp = userRepository.findByEmail(email);
-        if (userOtp.isEmpty()) {
-            throw new OtpSendFailedException("Cannot Find user by email");
-        }
-        LoginUser user = userOtp.get();
-
+    public UserResponseDTO sendOtp(LoginUser user) {
         String otp = emailService.generateOtp();
         user.setOtp(passwordUtil.hashPass(otp));
-        user.setOtpExpiry(emailService.getExpiryTimestamp(15));
+        user.setOtpExpiry(emailService.getExpiryTimestamp(10));
 
         userRepository.save(user);
-        boolean sent = emailService.sendOtp(email, otp);
+        boolean sent = emailService.sendOtp(user.getEmail(), otp);
         if (!sent) {
             throw new OtpSendFailedException("User created but OTP could not be sent. Please resend");
         }
         return UserResponseDTO.builder()
-                .email(email)
+                .email(user.getEmail())
                 .status("OTP_SENT")
                 .message("OTP send successfully")
                 .success(Boolean.TRUE)
@@ -90,7 +87,7 @@ public class AuthService {
             if (user.getOtpExpiry() == null || user.getOtpExpiry().before(new Timestamp(System.currentTimeMillis()))) {
                 return false;
             }
-            Boolean isMatch = passwordUtil.checkPass(user.getOtp(), passwordUtil.hashPass(otp));
+            Boolean isMatch = passwordUtil.checkPass(user.getOtp(), otp);
             if (!isMatch){
                 return false;
             }
