@@ -15,7 +15,9 @@ public class CryptoUtil {
     private static final int SALT_LENGTH = 16;
     private static final int IV_LENGTH = 12;
     private static final int GCM_TAG_LENGTH = 128;
-    private static final int ITERATIONS = 100_000;
+
+    // Set this higher (in production 200_000 - 600_000) minimum 100_000
+    private static final int ITERATIONS = 1_000;
     private static final int KEY_LENGTH = 256;
 
     public static byte[] generateSalt() {

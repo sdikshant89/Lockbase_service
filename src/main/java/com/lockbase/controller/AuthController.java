@@ -19,7 +19,7 @@ import org.springframework.web.util.WebUtils;
 public class AuthController {
 
     // No need of autowired if use @RequiredArgsConstructor on the class itself
-    private AuthService authService;
+    private final AuthService authService;
 
     // "register_user"
     @ResponseBody
@@ -31,11 +31,11 @@ public class AuthController {
     }
 
     // "send_otp"
-    @PostMapping(value = "/send_otp", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResponseDTO> resendOtp(@RequestParam("email") String email) {
-        UserResponseDTO response = authService.sendOtp(email);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @PostMapping(value = "/send_otp", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<UserResponseDTO> resendOtp(@RequestParam("email") String email) {
+//        UserResponseDTO response = authService.sendOtp(email);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
     // "login_user"
     @ResponseBody

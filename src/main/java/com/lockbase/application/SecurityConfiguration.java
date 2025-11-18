@@ -33,6 +33,7 @@ public class SecurityConfiguration {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers( "/lockbase/SecQue/**").permitAll()
+                    .requestMatchers( "/lockbase/auth/**").permitAll()
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
