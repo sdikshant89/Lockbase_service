@@ -25,7 +25,7 @@ public class LoginUser implements UserDetails {
     @Column(name = "pk_user_id")
     private Integer id;
 
-    @Column(name = "username"/*, length = 15, unique = true*/)
+    @Column(name = "username")
     private String username;
 
     @Column(name = "email"/*, unique = true*/)

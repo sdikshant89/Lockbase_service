@@ -1,14 +1,13 @@
 package com.lockbase.controller;
 
 import com.lockbase.dto.UserResponseDTO;
-import com.lockbase.exception.InternalServerException;
-import com.lockbase.exception.OtpSendFailedException;
-import com.lockbase.exception.UserAlreadyExistsException;
+import com.lockbase.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+@SuppressWarnings("unused")
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -18,10 +17,22 @@ public class GlobalExceptionHandler {
                 "USER_ALREADY_EXISTS"));
     }
 
-    @ExceptionHandler(OtpSendFailedException.class)
-    public ResponseEntity<UserResponseDTO> handleOtpFail(OtpSendFailedException e) {
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<UserResponseDTO> handleUserNotFoundFail(UserNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createNullableObject(e,
+                "USER_NOT_FOUND"));
+    }
+
+    @ExceptionHandler(OtpDeliveryFailedException.class)
+    public ResponseEntity<UserResponseDTO> handleOtpFail(OtpDeliveryFailedException e) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(createNullableObject(e,
                 "OTP_FAILED"));
+    }
+
+    @ExceptionHandler(GenericOtpException.class)
+    public ResponseEntity<UserResponseDTO> handleOtpCheckFail(GenericOtpException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createNullableObject(e,
+                "INCORRECT_OTP"));
     }
 
     @ExceptionHandler(InternalServerException.class)
