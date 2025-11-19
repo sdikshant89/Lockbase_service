@@ -3,9 +3,7 @@ package com.lockbase.service;
 import com.lockbase.dto.SecurityAnswerDTO;
 import com.lockbase.dto.UserDTO;
 import com.lockbase.dto.UserResponseDTO;
-import com.lockbase.exception.InternalServerException;
-import com.lockbase.exception.OtpSendFailedException;
-import com.lockbase.exception.UserAlreadyExistsException;
+import com.lockbase.exception.*;
 import com.lockbase.model.LoginUser;
 import com.lockbase.model.MapUserSeQue;
 import com.lockbase.model.SecurityQuestion;
@@ -22,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,22 +41,17 @@ public class AuthService {
             throw new UserAlreadyExistsException("User with the username and email already exists, try logging in.");
         }
         validateSecurityQuestions(userDTO.getSecurityQueAns());
+        LoginUser user = userUtil.populateNewUser(userDTO);
+        LoginUser savedUser = userRepository.save(user);
+        saveSecurityQuestionAnswers(savedUser, userDTO.getSecurityQueAns());
 
-        try{
-            LoginUser user = userUtil.populateNewUser(userDTO);
-            LoginUser savedUser = userRepository.save(user);
-            saveSecurityQuestionAnswers(savedUser, userDTO.getSecurityQueAns());
+        sendOtp(savedUser);
 
-            sendOtp(savedUser);
-
-            return userUtil.createResponse(savedUser, "OTP_SENT", "User registered successfully. OTP sent.",
-                    Boolean.TRUE);
-        }catch (Exception e){
-            throw new InternalServerException("User registration failed during encryption step.", e);
-        }
+        return userUtil.createResponse(savedUser, "OTP_SENT", "User registered successfully. OTP sent.",
+                Boolean.TRUE);
     }
 
-    public UserResponseDTO sendOtp(LoginUser user) {
+    public void sendOtp(LoginUser user) {
         String otp = emailService.generateOtp();
         user.setOtp(passwordUtil.hashPass(otp));
         user.setOtpExpiry(emailService.getExpiryTimestamp(10));
@@ -67,39 +59,32 @@ public class AuthService {
         userRepository.save(user);
         boolean sent = emailService.sendOtp(user.getEmail(), otp);
         if (!sent) {
-            throw new OtpSendFailedException("User created but OTP could not be sent. Please resend");
+            throw new OtpDeliveryFailedException("User created but OTP could not be sent. Please resend");
         }
-        return UserResponseDTO.builder()
-                .email(user.getEmail())
-                .status("OTP_SENT")
-                .message("OTP send successfully")
-                .success(Boolean.TRUE)
-                .build();
     }
 
-    public Boolean verifyOtp(String email, String otp) {
-        try{
-            Optional<LoginUser> userOpt = userRepository.findByEmail(email);
-            if (userOpt.isEmpty()){
-                return false;
+    public UserResponseDTO verifyOtp(String email, String otp) {
+            LoginUser user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UserNotFoundException("No user found, check email and try again!"));
+
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            if (user.getOtpExpiry() == null || user.getOtpExpiry().before(now)) {
+                throw new GenericOtpException("OTP expired, generate new OTP and try again!");
             }
-            LoginUser user = userOpt.get();
-            if (user.getOtpExpiry() == null || user.getOtpExpiry().before(new Timestamp(System.currentTimeMillis()))) {
-                return false;
-            }
-            Boolean isMatch = passwordUtil.checkPass(user.getOtp(), otp);
-            if (!isMatch){
-                return false;
+
+            if (!passwordUtil.checkPass(user.getOtp(), otp)) {
+                throw new GenericOtpException("OTP mismatch, check OTP and try again!");
             }
             user.setOtp(null);
             user.setOtpExpiry(null);
             user.setVerified(true);
             userRepository.save(user);
-            return true;
-        }catch (Exception e){
-            //Log error
-            return false;
-        }
+
+            return UserResponseDTO.builder()
+                    .email(email)
+                    .success(Boolean.TRUE)
+                    .message("Success! User verified")
+                    .build();
     }
 
     public UserResponseDTO loginUser(UserDTO userDTO){

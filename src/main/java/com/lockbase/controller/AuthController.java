@@ -16,9 +16,9 @@ import org.springframework.web.util.WebUtils;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/lockbase/auth")
+@SuppressWarnings("unused")
 public class AuthController {
 
-    // No need of autowired if use @RequiredArgsConstructor on the class itself
     private final AuthService authService;
 
     // "register_user"
@@ -30,12 +30,15 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // "send_otp"
-//    @PostMapping(value = "/send_otp", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<UserResponseDTO> resendOtp(@RequestParam("email") String email) {
-//        UserResponseDTO response = authService.sendOtp(email);
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
+    // "verify_otp"
+    @PostMapping("/verify_otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequestDTO request) {
+        UserResponseDTO response = authService.verifyOtp(request.getEmail(), request.getOtp());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // Resend OTP
+    // Forgot Password
 
     // "login_user"
     @ResponseBody
@@ -47,21 +50,6 @@ public class AuthController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    // "verify_otp"
-    @PostMapping("/verify_otp")
-    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequestDTO request) {
-        try {
-            boolean verified = authService.verifyOtp(request.getEmail(), request.getOtp());
-            if (verified) {
-                return ResponseEntity.ok("OTP verified successfully.");
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired OTP.");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Verification failed.");
-        }
     }
 
     @PostMapping("/refresh")
