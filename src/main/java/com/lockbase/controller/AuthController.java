@@ -32,7 +32,7 @@ public class AuthController {
 
     // "verify_otp"
     @PostMapping("/verify_otp")
-    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequestDTO request) {
+    public ResponseEntity<UserResponseDTO> verifyOtp(@RequestBody VerifyOtpRequestDTO request) {
         UserResponseDTO response = authService.verifyOtp(request.getEmail(), request.getOtp());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
