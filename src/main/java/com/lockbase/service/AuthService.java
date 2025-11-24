@@ -51,16 +51,16 @@ public class AuthService {
                 Boolean.TRUE);
     }
 
-    public void sendOtp(LoginUser user) {
-        String otp = emailService.generateOtp();
-        user.setOtp(passwordUtil.hashPass(otp));
-        user.setOtpExpiry(emailService.getExpiryTimestamp(10));
-
-        userRepository.save(user);
-        boolean sent = emailService.sendOtp(user.getEmail(), otp);
-        if (!sent) {
-            throw new OtpDeliveryFailedException("User created but OTP could not be sent. Please resend");
-        }
+    public UserResponseDTO resendOtp(String email){
+        LoginUser user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        // TODO: Add logic to prevent spamming
+        sendOtp(user);
+        return UserResponseDTO.builder()
+                .email(email)
+                .success(Boolean.TRUE)
+                .message("Success! OTP sent")
+                .build();
     }
 
     public UserResponseDTO verifyOtp(String email, String otp) {
@@ -85,6 +85,18 @@ public class AuthService {
                     .success(Boolean.TRUE)
                     .message("Success! User verified")
                     .build();
+    }
+
+    public void sendOtp(LoginUser user) {
+        String otp = emailService.generateOtp();
+        user.setOtp(passwordUtil.hashPass(otp));
+        user.setOtpExpiry(emailService.getExpiryTimestamp(10));
+
+        userRepository.save(user);
+        boolean sent = emailService.sendOtp(user.getEmail(), otp);
+        if (!sent) {
+            throw new OtpDeliveryFailedException("OTP could not be sent. Please resend");
+        }
     }
 
     public UserResponseDTO loginUser(UserDTO userDTO){

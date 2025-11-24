@@ -37,6 +37,11 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/resend_otp")
+    public ResponseEntity<UserResponseDTO> resendOtp(@RequestBody VerifyOtpRequestDTO request) {
+        UserResponseDTO response = authService.resendOtp(request.getEmail());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
     // Resend OTP
     // Forgot Password
 
