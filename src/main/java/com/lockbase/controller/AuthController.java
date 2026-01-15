@@ -37,13 +37,12 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/resend_otp")
+    // Resend OTP
+    @PatchMapping("/resend_otp")
     public ResponseEntity<UserResponseDTO> resendOtp(@RequestBody VerifyOtpRequestDTO request) {
         UserResponseDTO response = authService.resendOtp(request.getEmail());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    // Resend OTP
-    // Forgot Password
 
     // "login_user"
     @ResponseBody
@@ -56,6 +55,8 @@ public class AuthController {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    // Forgot Password
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {

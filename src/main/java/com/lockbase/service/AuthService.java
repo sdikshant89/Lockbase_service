@@ -51,6 +51,18 @@ public class AuthService {
                 Boolean.TRUE);
     }
 
+    public void sendOtp(LoginUser user) {
+        String otp = emailService.generateOtp();
+        user.setOtp(passwordUtil.hashPass(otp));
+        user.setOtpExpiry(emailService.getExpiryTimestamp(10));
+
+        userRepository.save(user);
+        boolean sent = emailService.sendOtp(user.getEmail(), otp);
+        if (!sent) {
+            throw new OtpDeliveryFailedException("OTP could not be sent. Please resend");
+        }
+    }
+
     public UserResponseDTO resendOtp(String email){
         LoginUser user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -85,18 +97,6 @@ public class AuthService {
                     .success(Boolean.TRUE)
                     .message("Success! User verified")
                     .build();
-    }
-
-    public void sendOtp(LoginUser user) {
-        String otp = emailService.generateOtp();
-        user.setOtp(passwordUtil.hashPass(otp));
-        user.setOtpExpiry(emailService.getExpiryTimestamp(10));
-
-        userRepository.save(user);
-        boolean sent = emailService.sendOtp(user.getEmail(), otp);
-        if (!sent) {
-            throw new OtpDeliveryFailedException("OTP could not be sent. Please resend");
-        }
     }
 
     public UserResponseDTO loginUser(UserDTO userDTO){

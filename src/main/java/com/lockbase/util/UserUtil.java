@@ -6,7 +6,6 @@ import com.lockbase.dto.UserResponseDTO;
 import com.lockbase.exception.InternalServerException;
 import com.lockbase.model.LoginUser;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import java.util.Comparator;
 
@@ -44,7 +43,7 @@ public class UserUtil {
 
             LoginUser newUser = new LoginUser();
             newUser.setUsername(userDTO.getUsername().trim().replaceAll("\\s+", " "));
-            newUser.setEmail(userDTO.getEmail().trim().toLowerCase());
+            newUser.setEmail(userDTO.getEmail().trim());
             newUser.setCountry_code(userDTO.getCountryCode());
             newUser.setPhone_number(userDTO.getCellNumber().replaceAll("[^0-9+]", ""));
             newUser.setCreateDate(new Timestamp(new Date().getTime()));
