@@ -1,17 +1,16 @@
 package com.lockbase.controller;
 
-import com.lockbase.dto.UserDTO;
-import com.lockbase.dto.VerifyOtpRequestDTO;
-import com.lockbase.dto.UserResponseDTO;
+import com.lockbase.dto.*;
 import com.lockbase.service.AuthService;
-import jakarta.servlet.http.Cookie;
+import com.lockbase.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.WebUtils;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +19,7 @@ import org.springframework.web.util.WebUtils;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserUtil userUtil;
 
     // "register_user"
     @ResponseBody
@@ -48,23 +48,42 @@ public class AuthController {
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping(value = "/login_user", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> loginUser(@RequestBody UserDTO user){
-        Object response = authService.loginUser(user);
-        if (response == null){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<LoginResponseDTO> loginUser(@RequestBody LoginRequestDTO dto, HttpServletRequest request){
+        AuthService.LoginResult result = authService.login(dto, request);
+
+        ResponseCookie cookie = userUtil.buildRefreshCookie(result.rawRefreshToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(result.body());
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshResponseDTO> refresh(
+            @CookieValue(name = "refreshToken", required = false) String refreshToken,
+            HttpServletRequest request
+    ) {
+        AuthService.RefreshResult result = authService.refresh(refreshToken, request);
+
+        ResponseCookie cookie = userUtil.buildRefreshCookie(result.rawRefreshToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(result.body());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @CookieValue(name = "refreshToken", required = false) String refreshToken
+    ) {
+        authService.logout(refreshToken);
+
+        ResponseCookie cleared = userUtil.clearRefreshCookie();
+
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, cleared.toString())
+                .build();
     }
 
     // Forgot Password
-
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
-        // Get the cookie named "refreshToken"
-        Cookie cookie = WebUtils.getCookie(request, "refreshToken");
-        String refreshToken = (cookie != null) ? cookie.getValue() : null;
-
-        // Delegate logic to the service layer
-        return authService.refreshAccessToken(refreshToken);
-    }
 }

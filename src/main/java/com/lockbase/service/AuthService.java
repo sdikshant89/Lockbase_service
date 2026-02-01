@@ -1,8 +1,6 @@
 package com.lockbase.service;
 
-import com.lockbase.dto.SecurityAnswerDTO;
-import com.lockbase.dto.UserDTO;
-import com.lockbase.dto.UserResponseDTO;
+import com.lockbase.dto.*;
 import com.lockbase.exception.*;
 import com.lockbase.model.LoginUser;
 import com.lockbase.model.MapUserSeQue;
@@ -12,9 +10,8 @@ import com.lockbase.repository.MapUserSeQueRepository;
 import com.lockbase.repository.SecurityQuestionRepository;
 import com.lockbase.util.PasswordUtil;
 import com.lockbase.util.UserUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +28,12 @@ public class AuthService {
     private final EmailService emailService;
 
     private final LoginUserRepository userRepository;
+    private final RefreshTokenService refreshTokenService;
     private final MapUserSeQueRepository mapUserSeQueRepository;
     private final SecurityQuestionRepository securityQuestionRepository;
+
+    public record LoginResult(LoginResponseDTO body, String rawRefreshToken) {}
+    public record RefreshResult(RefreshResponseDTO body, String rawRefreshToken) {}
 
     @Transactional
     public UserResponseDTO registerUser(UserDTO userDTO){
@@ -99,31 +100,50 @@ public class AuthService {
                     .build();
     }
 
-    public UserResponseDTO loginUser(UserDTO userDTO){
-        //Optional<LoginUser> user =  userRepository.findByEmail(userDTO.getEmail());
-        return null;
+    @Transactional
+    public LoginResult login(LoginRequestDTO dto, HttpServletRequest request) {
+        LoginUser user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new AuthException("Invalid credentials"));
+
+        if (!Boolean.TRUE.equals(passwordUtil.checkPass(user.getPassword(), dto.getPassword()))) {
+            throw new AuthException("Invalid credentials");
+        }
+
+        String accessToken = jwtService.issueAccessToken(user);
+
+        RefreshTokenService.IssuedRefreshToken issued = refreshTokenService.create(user, request);
+
+        LoginResponseDTO body = LoginResponseDTO.builder()
+                .accessToken(accessToken)
+                .encPrkPass(user.getEncPrkPass())
+                .saltPass(user.getSaltPass())
+                .ivPass(user.getIvPass())
+                .userId(user.getId())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .build();
+
+        return new LoginResult(body, issued.rawToken());
     }
 
-    public ResponseEntity<?> refreshAccessToken(String refreshToken) {
-        if (refreshToken == null || refreshToken.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Missing refresh token"));
-        }
+    @Transactional
+    public RefreshResult refresh(String rawRefreshTokenFromCookie, HttpServletRequest request) {
+        RefreshTokenService.IssuedRefreshToken rotated =
+                refreshTokenService.rotate(rawRefreshTokenFromCookie, request);
 
-        try {
-            String username = jwtService.extractClaim(refreshToken, Claims::getSubject);
-            LoginUser user = null;
-                    //(LoginUser) userDetailsService.loadUserByUsername(username);
+        LoginUser user = rotated.entity().getUser();
+        String accessToken = jwtService.issueAccessToken(user);
 
-            if (jwtService.isTokenExpired(refreshToken)) {
-                return ResponseEntity.status(401).body(Map.of("error", "Refresh token expired"));
-            }
+        RefreshResponseDTO body = RefreshResponseDTO.builder()
+                .accessToken(accessToken)
+                .build();
 
-            String newAccessToken = jwtService.generateAccessToken(Map.of(), user);
-            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+        return new RefreshResult(body, rotated.rawToken());
+    }
 
-        } catch (Exception e) {
-            return ResponseEntity.status(403).body(Map.of("error", "Invalid refresh token"));
-        }
+    @Transactional
+    public void logout(String rawRefreshTokenFromCookie) {
+        refreshTokenService.revoke(rawRefreshTokenFromCookie);
     }
 
     private void saveSecurityQuestionAnswers(LoginUser user, List<SecurityAnswerDTO> answers){

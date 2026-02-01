@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -23,12 +24,17 @@ public class JWTService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateAccessToken(Map<String, Object> claims, LoginUser user) {
-        return generateToken(claims, user, Duration.ofMinutes(45));
+    public String issueAccessToken(LoginUser user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        claims.put("email", user.getEmail());
+        claims.put("username", user.getUsername());
+
+        return generateAccessToken(claims, user);
     }
 
-    public String generateRefreshToken(LoginUser user) {
-        return generateToken(Map.of(), user, Duration.ofDays(7)); // 7 days
+    public String generateAccessToken(Map<String, Object> claims, LoginUser user) {
+        return generateToken(claims, user, Duration.ofMinutes(45));
     }
 
     // Checks if the token is valid and returns claims if it is

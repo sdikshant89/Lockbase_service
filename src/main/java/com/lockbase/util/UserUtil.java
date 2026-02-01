@@ -6,6 +6,8 @@ import com.lockbase.dto.UserResponseDTO;
 import com.lockbase.exception.InternalServerException;
 import com.lockbase.model.LoginUser;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import java.util.Comparator;
 
@@ -18,6 +20,21 @@ import java.util.stream.Collectors;
 public class UserUtil {
 
     private final PasswordUtil passwordUtil;
+
+    @Value("${security.refresh-token.cookie-name:refreshToken}")
+    private String refreshCookieName;
+
+    @Value("${security.refresh-token.ttl-days:30}")
+    private long refreshTtlDays;
+
+    @Value("${security.refresh-token.cookie-secure:true}")
+    private boolean cookieSecure;
+
+    @Value("${security.refresh-token.cookie-samesite:Strict}")
+    private String sameSite; // Strict / Lax / None
+
+    @Value("${security.refresh-token.cookie-path:/api/auth/refresh}")
+    private String cookiePath;
 
     public LoginUser populateNewUser(UserDTO userDTO) {
         try {
@@ -76,6 +93,28 @@ public class UserUtil {
                 .message(message)
                 .success(success)
                 .otpExpiry(user.getOtpExpiry())
+                .build();
+    }
+    public ResponseCookie buildRefreshCookie(String rawRefreshToken) {
+        // Max-Age in seconds
+        long maxAgeSeconds = refreshTtlDays * 24L * 60L * 60L;
+
+        return ResponseCookie.from(refreshCookieName, rawRefreshToken)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path(cookiePath)
+                .maxAge(maxAgeSeconds)
+                .sameSite(sameSite)
+                .build();
+    }
+
+    public ResponseCookie clearRefreshCookie() {
+        return ResponseCookie.from(refreshCookieName, "")
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path(cookiePath)
+                .maxAge(0)
+                .sameSite(sameSite)
                 .build();
     }
 }
